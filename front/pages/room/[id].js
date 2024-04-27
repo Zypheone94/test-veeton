@@ -62,9 +62,9 @@ function Room({ className }) {
   return (
     <div className={className}>
       <h3>Room: {room_id}</h3>
-      <div className="message-area">
+      <div className="border-2 border-white rounded-2xl my-20 px-4 min-h-40 max-h-56 overflow-scroll">
         {messageList && messageList.map((message) => (
-            <p>{message.message_body}</p>
+            <p className="text-yellow-600 my-4">{message.message_body}</p>
         ))}
       </div>
       <div>
@@ -73,7 +73,7 @@ function Room({ className }) {
             placeholder="Entrer le message à envoyer"
             onChange={handle_change_value}
             value={messageBody}
-            className="message-input"
+            className="text-yellow-600"
           />
           <button>Envoyer le message</button>
         </form>
@@ -82,18 +82,4 @@ function Room({ className }) {
   );
 }
 
-const StyledRoom = styled(Room)`
-  .message-area {
-    border: 1px solid white;
-    border-radius: 15px;
-    min-height: 250px;
-
-    margin: 50px 0;
-  }
-
-  .message-input {
-    color: orange;
-  }
-`;
-
-export default StyledRoom;
+export default Room;
