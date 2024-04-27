@@ -7,11 +7,11 @@ function Room({ className }) {
   const router = useRouter();
   const room_id = router.query.id;
 
-  const [messageContent, setMessageContent] = useState("");
+  const [messageBody, setmessageBody] = useState("");
 
   const handle_change_value = (e) => {
-    console.log(messageContent);
-    setMessageContent(e.target.value);
+    console.log(messageBody);
+    setmessageBody(e.target.value);
   };
 
   const send_message = async (e) => {
@@ -23,7 +23,7 @@ function Room({ className }) {
       },
       body: JSON.stringify({
         room_id: room_id,
-        message_content: messageContent,
+        message_body: messageBody,
       }),
     }).then((data) => {
       console.log(data);
@@ -39,7 +39,7 @@ function Room({ className }) {
           <input
             placeholder="Entrer le message à envoyer"
             onChange={handle_change_value}
-            value={messageContent}
+            value={messageBody}
             className="message-input"
           />
           <button>Envoyer le message</button>

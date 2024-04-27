@@ -6,6 +6,6 @@ class Room(models.Model):
 
 
 class Message(models.Model):
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    room_id = models.ForeignKey(Room, on_delete=models.CASCADE)
     message_id = models.AutoField(primary_key=True, unique=True)
     message_body = models.TextField()

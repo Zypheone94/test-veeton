@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from messagerie.models import Room, Message
-from messagerie.serializer import RoomSerializer
+from messagerie.serializer import RoomSerializer, MessageSerializer
 
 
 class RoomListView(APIView):
@@ -33,12 +33,17 @@ class MessageListView(APIView):
         print(room_id)
         if room_id:
             messages = Message.objects.filter(room_id=room_id)
-            return Response({'messages': messages}, status=status.HTTP_200_OK)
+            serializer = MessageSerializer(messages, many=True)
+            return Response({'messages': serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
 class MessageView(APIView):
     def post(self, request):
-        machin = request.data
-        print(machin)
-        return Response({'message': machin}, status=status.HTTP_200_OK)
+        data = request.data
+        print(data)
+        serializer = MessageSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+        return Response({'message': data}, status=status.HTTP_200_OK)
