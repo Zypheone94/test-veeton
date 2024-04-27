@@ -28,14 +28,13 @@ class RoomView(APIView):
 
 
 class MessageListView(APIView):
-    def get(self, request):
-        room_id = request.data.get('room_id')
-        print(room_id)
-        if room_id:
-            messages = Message.objects.filter(room_id=room_id)
+    def get(self, request, **kwargs):
+        try:
+            messages = Message.objects.filter(room_id=kwargs['room_id'])
+            print(messages)
             serializer = MessageSerializer(messages, many=True)
             return Response({'messages': serializer.data}, status=status.HTTP_200_OK)
-        else:
+        except Exception as e:
             return Response({"error": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
 
 

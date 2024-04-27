@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
 import styled from "styled-components";
@@ -8,6 +8,11 @@ function Room({ className }) {
   const room_id = router.query.id;
 
   const [messageBody, setmessageBody] = useState("");
+  const [messageList, setMessageList] = useState();
+
+  useEffect(() => {
+    get_message_list();
+  }, [room_id]);
 
   const handle_change_value = (e) => {
     console.log(messageBody);
@@ -30,10 +35,38 @@ function Room({ className }) {
     });
   };
 
+  const get_message_list = async (e) => {
+    await fetch(`http://localhost:8000/api/message-list/${room_id}/`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur HTTP " + response.status);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        setMessageList(data.messages)
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la requête :", error);
+      });
+  };
+
+  console.log(messageList)
+
   return (
     <div className={className}>
       <h3>Room: {room_id}</h3>
-      <div className="message-area">message</div>
+      <div className="message-area">
+        {messageList && messageList.map((message) => (
+            <p>{message.message_body}</p>
+        ))}
+      </div>
       <div>
         <form onSubmit={send_message}>
           <input

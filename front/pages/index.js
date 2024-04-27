@@ -1,12 +1,10 @@
 import { Inter } from "next/font/google";
-import { useRouter } from 'next/router'
-
+import { useRouter } from "next/router";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-
-  const router = useRouter()
+  const router = useRouter();
 
   const create_room = async () => {
     await fetch("http://localhost:8000/api/room/", {
@@ -14,16 +12,15 @@ export default function Home() {
       headers: {
         "Content-Type": "application/json",
       },
-    })
-      .then((response) => {
+    }).then((response) => {
         if (!response.ok) {
           throw new Error("Erreur HTTP " + response.status);
         }
         return response.json();
       })
       .then((data) => {
-        console.log("Données renvoyées par le serveur :", data);
-        router.push('/room/' + data.id)
+        console.log("Données renvoyées par le serveur :", data)
+        router.push("/room/" + data.id);
       })
       .catch((error) => {
         console.error("Erreur lors de la requête :", error);
