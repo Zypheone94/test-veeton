@@ -8,6 +8,7 @@ class Room(models.Model):
     def __str__(self):
         return self.room_id + self.password
 
+
 class Message(models.Model):
     room_id = models.ForeignKey(Room, on_delete=models.CASCADE)
     message_id = models.AutoField(primary_key=True, unique=True)

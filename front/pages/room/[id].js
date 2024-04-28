@@ -7,11 +7,48 @@ function Room() {
 
   const [messageBody, setmessageBody] = useState("");
   const [messageList, setMessageList] = useState();
-  const [isPassword, setIsPassword] = useState(false);
+  const [deleteRoomTime, setDeleteRoomTime] = useState();
+  const [countdown, setCountdown] = useState();
 
   useEffect(() => {
     get_message_list();
+    handle_set_delete_time();
   }, [room_id]);
+
+  useEffect(() => {
+    const handleSetDeleteTime = () => {
+      const time = new Date();
+      time.setMinutes(time.getMinutes() + 30);
+      setDeleteRoomTime(time);
+    };
+
+    handleSetDeleteTime();
+
+    const interval = setInterval(() => {
+      const currentTime = new Date();
+
+      const timeDifferenceInSeconds = Math.max(
+        0,
+        Math.floor((deleteRoomTime - currentTime) / 1000)
+      );
+
+      const minutes = Math.floor(timeDifferenceInSeconds / 60);
+      const seconds = timeDifferenceInSeconds % 60;
+
+      const formattedCountdown = `${minutes
+        .toString()
+        .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+      setCountdown(formattedCountdown);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handle_set_delete_time = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 30);
+  };
 
   const handle_change_value = (e) => {
     setmessageBody(e.target.value);
@@ -56,40 +93,47 @@ function Room() {
       });
   };
 
+  //   .toLocaleTimeString(navigator.language, {
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //     second: "2-digit",
+  //   })
+
   return (
     <div>
       <h3>Room: {room_id}</h3>
       <p>
         <a href="/">Retour</a>
       </p>
-      {isPassword ? (
-        <p>Entrer mot de passe avant d'afficher le chat</p>
-      ) : (
-        <>
-          <div className="border-2 border-white rounded-2xl my-20 px-4 min-h-40 max-h-56 overflow-y-scroll">
-            {messageList &&
-              messageList.map((message) => (
-                <div className="flex items-center">
-                  <p>{message.message_date.split("T")[1].split(".")[0]}</p>
-                  <p className="text-yellow-600 my-4 ml-6">
-                    {message.message_body}
-                  </p>
-                </div>
-              ))}
-          </div>
-          <div>
-            <form onSubmit={send_message}>
-              <input
-                placeholder="Entrer le message à envoyer"
-                onChange={handle_change_value}
-                value={messageBody}
-                className="text-yellow-600"
-              />
-              <button>Envoyer le message</button>
-            </form>
-          </div>
-        </>
-      )}
+
+      <div>
+        <p>
+          Temps restant avant la fin de cette salle : <b>{countdown}</b>
+        </p>
+      </div>
+
+      <div className="border-2 border-white rounded-2xl my-20 px-4 min-h-40 max-h-56 overflow-y-scroll">
+        {messageList &&
+          messageList.map((message) => (
+            <div className="flex items-center">
+              <p>{message.message_date.split("T")[1].split(".")[0]}</p>
+              <p className="text-yellow-600 my-4 ml-6">
+                {message.message_body}
+              </p>
+            </div>
+          ))}
+      </div>
+      <div>
+        <form onSubmit={send_message}>
+          <input
+            placeholder="Entrer le message à envoyer"
+            onChange={handle_change_value}
+            value={messageBody}
+            className="text-yellow-600"
+          />
+          <button>Envoyer le message</button>
+        </form>
+      </div>
     </div>
   );
 }
