@@ -9,6 +9,8 @@ from rest_framework.response import Response
 from messagerie.models import Room, Message
 from messagerie.serializer import RoomSerializer, MessageSerializer
 
+from django.contrib.auth.hashers import make_password, check_password
+
 
 class RoomListView(APIView):
     def get(self, request):
@@ -22,20 +24,39 @@ class RoomView(APIView):
         generate_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
         while Room.objects.filter(room_id=generate_id).exists():
             generate_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
-        serializer = RoomSerializer(data={'room_id': generate_id})
+
+        password = request.data['password']
+        print(password)
+        if password:
+            password = make_password(password)
+
+        print(password)
+        serializer = RoomSerializer(data={'room_id': generate_id, 'password': password})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({'id': generate_id})
 
     def get(self, request, **kwargs):
         room_id = kwargs['room_id']
-        print(room_id)
         room = Room.objects.filter(room_id=room_id)
-        print(room)
+
         if room:
-            return Response({'id': room_id}, status=status.HTTP_200_OK)
+            if room[0].password:
+                print({"password": True})
+                return Response({"password": True}, status=status.HTTP_200_OK)
+            else:
+                return Response({'id': room_id}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Room not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, **kwargs):
+        room_id = kwargs['room_id']
+        room = Room.objects.filter(room_id=room_id)
+        password = request.data['password']
+        if check_password(password, room[0].password):
+            return Response({'password': 'validate'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'password': 'wrong password'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class MessageListView(APIView):

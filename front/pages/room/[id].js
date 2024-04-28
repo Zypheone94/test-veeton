@@ -7,6 +7,7 @@ function Room() {
 
   const [messageBody, setmessageBody] = useState("");
   const [messageList, setMessageList] = useState();
+  const [isPassword, setIsPassword] = useState(false);
 
   useEffect(() => {
     get_message_list();
@@ -61,28 +62,34 @@ function Room() {
       <p>
         <a href="/">Retour</a>
       </p>
-      <div className="border-2 border-white rounded-2xl my-20 px-4 min-h-40 max-h-56 overflow-y-scroll">
-        {messageList &&
-          messageList.map((message) => (
-            <div className="flex items-center">
-              <p>{message.message_date.split("T")[1].split(".")[0]}</p>
-              <p className="text-yellow-600 my-4 ml-6">
-                {message.message_body}
-              </p>
-            </div>
-          ))}
-      </div>
-      <div>
-        <form onSubmit={send_message}>
-          <input
-            placeholder="Entrer le message à envoyer"
-            onChange={handle_change_value}
-            value={messageBody}
-            className="text-yellow-600"
-          />
-          <button>Envoyer le message</button>
-        </form>
-      </div>
+      {isPassword ? (
+        <p>Entrer mot de passe avant d'afficher le chat</p>
+      ) : (
+        <>
+          <div className="border-2 border-white rounded-2xl my-20 px-4 min-h-40 max-h-56 overflow-y-scroll">
+            {messageList &&
+              messageList.map((message) => (
+                <div className="flex items-center">
+                  <p>{message.message_date.split("T")[1].split(".")[0]}</p>
+                  <p className="text-yellow-600 my-4 ml-6">
+                    {message.message_body}
+                  </p>
+                </div>
+              ))}
+          </div>
+          <div>
+            <form onSubmit={send_message}>
+              <input
+                placeholder="Entrer le message à envoyer"
+                onChange={handle_change_value}
+                value={messageBody}
+                className="text-yellow-600"
+              />
+              <button>Envoyer le message</button>
+            </form>
+          </div>
+        </>
+      )}
     </div>
   );
 }
