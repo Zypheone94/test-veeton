@@ -48,6 +48,7 @@ function Room() {
       })
       .then((data) => {
         setMessageList(data.messages);
+        console.log(data.messages);
       })
       .catch((error) => {
         console.error("Erreur lors de la requête :", error);
@@ -60,10 +61,15 @@ function Room() {
       <p>
         <a href="/">Retour</a>
       </p>
-      <div className="border-2 border-white rounded-2xl my-20 px-4 min-h-40 overflow-y-scroll">
+      <div className="border-2 border-white rounded-2xl my-20 px-4 min-h-40 max-h-56 overflow-y-scroll">
         {messageList &&
           messageList.map((message) => (
-            <p className="text-yellow-600 my-4">{message.message_body}</p>
+            <div className="flex items-center">
+              <p>{message.message_date.split("T")[1].split(".")[0]}</p>
+              <p className="text-yellow-600 my-4 ml-6">
+                {message.message_body}
+              </p>
+            </div>
           ))}
       </div>
       <div>
