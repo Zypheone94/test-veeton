@@ -26,6 +26,16 @@ class RoomView(APIView):
         serializer.save()
         return Response({'id': generate_id})
 
+    def get(self, request, **kwargs):
+        room_id = kwargs['room_id']
+        print(room_id)
+        room = Room.objects.filter(room_id=room_id)
+        print(room)
+        if room:
+            return Response({'id': room_id}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Room not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class MessageListView(APIView):
     def get(self, request, **kwargs):

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
-import styled from "styled-components";
-
-function Room({ className }) {
+function Room() {
   const router = useRouter();
   const room_id = router.query.id;
 
@@ -15,7 +13,6 @@ function Room({ className }) {
   }, [room_id]);
 
   const handle_change_value = (e) => {
-    console.log(messageBody);
     setmessageBody(e.target.value);
   };
 
@@ -30,8 +27,9 @@ function Room({ className }) {
         room_id: room_id,
         message_body: messageBody,
       }),
-    }).then((data) => {
-      console.log(data);
+    }).then(() => {
+      setmessageBody("");
+      get_message_list();
     });
   };
 
@@ -49,23 +47,24 @@ function Room({ className }) {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
-        setMessageList(data.messages)
+        setMessageList(data.messages);
       })
       .catch((error) => {
         console.error("Erreur lors de la requête :", error);
       });
   };
 
-  console.log(messageList)
-
   return (
-    <div className={className}>
+    <div>
       <h3>Room: {room_id}</h3>
-      <div className="border-2 border-white rounded-2xl my-20 px-4 min-h-40 max-h-56 overflow-scroll">
-        {messageList && messageList.map((message) => (
+      <p>
+        <a href="/">Retour</a>
+      </p>
+      <div className="border-2 border-white rounded-2xl my-20 px-4 min-h-40 overflow-y-scroll">
+        {messageList &&
+          messageList.map((message) => (
             <p className="text-yellow-600 my-4">{message.message_body}</p>
-        ))}
+          ))}
       </div>
       <div>
         <form onSubmit={send_message}>
