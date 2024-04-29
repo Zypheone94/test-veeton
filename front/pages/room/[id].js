@@ -35,7 +35,6 @@ function Room() {
       const formattedCountdown = `${minutes
         .toString()
         .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-      console.log(formattedCountdown);
 
       setCountdown(formattedCountdown);
       if (formattedCountdown === "00:00") {
@@ -169,7 +168,7 @@ function Room() {
           messageList.map((message) => (
             <div className="flex items-center">
               <p>{message.message_date.split("T")[1].split(".")[0]}</p>
-              <p className="text-yellow-600 my-4 ml-6">
+              <p className="text-yellow-600 my-4 ml-6" key={message.message_id}>
                 {message.message_body}
               </p>
             </div>
