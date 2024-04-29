@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
+import Modal from "@/components/Modal";
+
 function Room() {
   const router = useRouter();
   const room_id = router.query.id;
@@ -8,11 +10,14 @@ function Room() {
   const [messageBody, setmessageBody] = useState("");
   const [messageList, setMessageList] = useState();
   const [deleteRoomTime, setDeleteRoomTime] = useState();
+  const [displayError, setDisplayError] = useState(false);
+  const [displayPassword, setDisplayPassword] = useState(false);
+  const [checkPasswordValue, setCheckPasswordValue] = useState("");
+
   const [countdown, setCountdown] = useState();
 
   useEffect(() => {
-    get_message_list();
-    handle_set_delete_time();
+    handle_load_room();
   }, [room_id]);
 
   useEffect(() => {
@@ -23,8 +28,6 @@ function Room() {
         0,
         Math.floor((deleteRoomTime - currentTime) / 1000)
       );
-
-      console.log(timeDifferenceInSeconds)
 
       const minutes = Math.floor(timeDifferenceInSeconds / 60);
       const seconds = timeDifferenceInSeconds % 60;
@@ -42,9 +45,55 @@ function Room() {
     return () => clearInterval(interval);
   }, [deleteRoomTime]);
 
+  const handle_load_room = async (e) => {
+    await fetch(`http://localhost:8000/api/room/${room_id}/`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        if (res.status === 404) {
+          setDisplayError(true);
+        } else {
+          return res.json();
+        }
+      })
+      .then((data) => {
+        if (data && data.password) {
+          setDisplayError(false);
+          setDisplayPassword(true);
+        } else {
+          get_message_list();
+          handle_set_delete_time();
+        }
+      });
+  };
+
+  const verify_value = async (e) => {
+    e.preventDefault();
+    await fetch(`http://localhost:8000/api/room/${room_id}/`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        password: checkPasswordValue,
+      }),
+    }).then((res) => {
+      if (res.status === 200) {
+        get_message_list();
+        handle_set_delete_time();
+        setDisplayPassword(false);
+      } else {
+        setDisplayError(true);
+      }
+    });
+  };
+
   const handle_set_delete_time = () => {
     const now = new Date();
-    setDeleteRoomTime(now.setMinutes(now.getMinutes() + 1));
+    setDeleteRoomTime(now.setMinutes(now.getMinutes() + 30));
   };
 
   const handle_change_value = (e) => {
@@ -83,7 +132,6 @@ function Room() {
       })
       .then((data) => {
         setMessageList(data.messages);
-        console.log(data.messages);
       })
       .catch((error) => {
         console.error("Erreur lors de la requête :", error);
@@ -103,14 +151,12 @@ function Room() {
     });
   };
 
-  //   .toLocaleTimeString(navigator.language, {
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //     second: "2-digit",
-  //   })
-
   return (
-    <div>
+    <div
+      style={{
+        filter: displayPassword ? "blur(5px)" : "",
+      }}
+    >
       <h3>Room: {room_id}</h3>
       <p>
         <a href="/">Retour</a>
@@ -144,6 +190,14 @@ function Room() {
           <button>Envoyer le message</button>
         </form>
       </div>
+
+      {displayPassword ? (
+        <Modal
+          setCheckPasswordValue={setCheckPasswordValue}
+          verify_value={verify_value}
+          displayError={displayError}
+        />
+      ) : null}
     </div>
   );
 }
