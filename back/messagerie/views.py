@@ -58,6 +58,17 @@ class RoomView(APIView):
         else:
             return Response({'password': 'wrong password'}, status=status.HTTP_401_UNAUTHORIZED)
 
+    def delete(self, request, **kwargs):
+        room_id = kwargs['room_id']
+        room = Room.objects.filter(room_id=room_id)
+        print(room)
+        print(room_id)
+        if room:
+            room.delete()
+            return Response({"deleted": True}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Room not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class MessageListView(APIView):
     def get(self, request, **kwargs):

@@ -16,14 +16,6 @@ function Room() {
   }, [room_id]);
 
   useEffect(() => {
-    const handleSetDeleteTime = () => {
-      const time = new Date();
-      time.setMinutes(time.getMinutes() + 30);
-      setDeleteRoomTime(time);
-    };
-
-    handleSetDeleteTime();
-
     const interval = setInterval(() => {
       const currentTime = new Date();
 
@@ -31,6 +23,8 @@ function Room() {
         0,
         Math.floor((deleteRoomTime - currentTime) / 1000)
       );
+
+      console.log(timeDifferenceInSeconds)
 
       const minutes = Math.floor(timeDifferenceInSeconds / 60);
       const seconds = timeDifferenceInSeconds % 60;
@@ -40,14 +34,17 @@ function Room() {
         .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 
       setCountdown(formattedCountdown);
+      if (timeDifferenceInSeconds === 0) {
+        handle_delete_room();
+      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [deleteRoomTime]);
 
   const handle_set_delete_time = () => {
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 30);
+    setDeleteRoomTime(now.setMinutes(now.getMinutes() + 1));
   };
 
   const handle_change_value = (e) => {
@@ -91,6 +88,19 @@ function Room() {
       .catch((error) => {
         console.error("Erreur lors de la requête :", error);
       });
+  };
+
+  const handle_delete_room = async (e) => {
+    await fetch(`http://localhost:8000/api/room/${room_id}/`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      if (response.status === 200) {
+        router.push("/");
+      }
+    });
   };
 
   //   .toLocaleTimeString(navigator.language, {
