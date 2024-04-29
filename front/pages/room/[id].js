@@ -17,7 +17,7 @@ function Room() {
   const [countdown, setCountdown] = useState();
 
   useEffect(() => {
-    handle_load_room();
+    room_id && handle_load_room();
   }, [room_id]);
 
   useEffect(() => {
@@ -35,9 +35,10 @@ function Room() {
       const formattedCountdown = `${minutes
         .toString()
         .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      console.log(formattedCountdown);
 
       setCountdown(formattedCountdown);
-      if (timeDifferenceInSeconds === 0) {
+      if (formattedCountdown === "00:00") {
         handle_delete_room();
       }
     }, 1000);
@@ -54,18 +55,18 @@ function Room() {
     })
       .then((res) => {
         if (res.status === 404) {
-          setDisplayError(true);
+          router.push("/");
         } else {
           return res.json();
         }
       })
       .then((data) => {
+        setDeleteRoomTime(new Date(data.delete_hours));
         if (data && data.password) {
           setDisplayError(false);
           setDisplayPassword(true);
         } else {
           get_message_list();
-          handle_set_delete_time();
         }
       });
   };
@@ -83,17 +84,12 @@ function Room() {
     }).then((res) => {
       if (res.status === 200) {
         get_message_list();
-        handle_set_delete_time();
         setDisplayPassword(false);
+        return res.json();
       } else {
         setDisplayError(true);
       }
     });
-  };
-
-  const handle_set_delete_time = () => {
-    const now = new Date();
-    setDeleteRoomTime(now.setMinutes(now.getMinutes() + 30));
   };
 
   const handle_change_value = (e) => {

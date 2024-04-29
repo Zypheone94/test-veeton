@@ -11,7 +11,6 @@ export default function Home() {
   const [passwordValue, setPasswordValue] = useState("");
   const [roomValue, setRoomValue] = useState("");
   const [displayError, setDisplayError] = useState(false);
-  const [checkPasswordValue, setCheckPasswordValue] = useState("");
 
   const create_room = async (e) => {
     e.preventDefault();
@@ -31,7 +30,6 @@ export default function Home() {
         return response.json();
       })
       .then((data) => {
-        console.log("Données renvoyées par le serveur :", data);
         router.push("/room/" + data.id);
       })
       .catch((error) => {

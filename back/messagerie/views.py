@@ -1,5 +1,6 @@
 import random
 import string
+from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -41,11 +42,12 @@ class RoomView(APIView):
         room = Room.objects.filter(room_id=room_id)
 
         if room:
+            print(room[0].delete_hours)
+
             if room[0].password:
-                print({"password": True})
-                return Response({"password": True}, status=status.HTTP_200_OK)
+                return Response({"password": True, 'delete_hours': timezone.localtime(room[0].delete_hours)}, status=status.HTTP_200_OK)
             else:
-                return Response({'id': room_id}, status=status.HTTP_200_OK)
+                return Response({'id': room_id, 'delete_hours': timezone.localtime(room[0].delete_hours)}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Room not found'}, status=status.HTTP_404_NOT_FOUND)
 
