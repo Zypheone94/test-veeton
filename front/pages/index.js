@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Inter } from "next/font/google";
 import { useRouter } from "next/router";
 
+import api from "@/components/api";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
@@ -12,44 +14,26 @@ export default function Home() {
   const [roomValue, setRoomValue] = useState("");
   const [displayError, setDisplayError] = useState(false);
 
-  const create_room = async (e) => {
+  const create_room = (e) => {
     e.preventDefault();
-    await fetch("http://localhost:8000/api/room/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        password: passwordValue,
-      }),
+    api({
+      request_type: "POST",
+      request_url: "http://localhost:8000/api/room/",
+      request_body: { password: passwordValue },
     })
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erreur HTTP " + response.status);
+        if (response.data && response.status === 200) {
+          router.push("/room/" + response.data.id);
         }
-        return response.json();
-      })
-      .then((data) => {
-        router.push("/room/" + data.id);
       })
       .catch((error) => {
-        console.error("Erreur lors de la requête :", error);
+        console.error("Erreur lors de la requête API :", error);
       });
   };
 
   const handle_load_room = async (e) => {
     e.preventDefault();
     router.push(`/room/${roomValue}/`);
-    await fetch(`http://localhost:8000/api/room/${roomValue}/`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((res) => {
-      if (res.status === 404) {
-        setDisplayError(true);
-      }
-    });
   };
 
   return (
