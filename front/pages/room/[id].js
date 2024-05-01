@@ -67,19 +67,14 @@ function Room() {
 
   const verify_value = async (e) => {
     e.preventDefault();
-    await fetch(`http://localhost:8000/api/room/${room_id}/`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        password: checkPasswordValue,
-      }),
+    api({
+      request_type: "PUT",
+      request_url: `http://localhost:8000/api/room/${room_id}/`,
+      request_body: { password: checkPasswordValue },
     }).then((res) => {
       if (res.status === 200) {
         get_message_list();
         setDisplayPassword(false);
-        return res.json();
       } else {
         setDisplayError(true);
       }
@@ -92,48 +87,36 @@ function Room() {
 
   const send_message = async (e) => {
     e.preventDefault();
-    await fetch("http://localhost:8000/api/send-message/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    api({
+      request_type: "POST",
+      request_url: "http://localhost:8000/api/send-message/",
+      request_body: {
         room_id: room_id,
         message_body: messageBody,
-      }),
+      },
     }).then(() => {
       setmessageBody("");
       get_message_list();
     });
   };
 
-  const get_message_list = async (e) => {
-    await fetch(`http://localhost:8000/api/message-list/${room_id}/`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+  const get_message_list = async () => {
+    api({
+      request_type: "GET",
+      request_url: `http://localhost:8000/api/message-list/${room_id}/`,
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erreur HTTP " + response.status);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setMessageList(data.messages);
+      .then((res) => {
+        setMessageList(res.data.messages);
       })
       .catch((error) => {
         console.error("Erreur lors de la requête :", error);
       });
   };
 
-  const handle_delete_room = async (e) => {
-    await fetch(`http://localhost:8000/api/room/${room_id}/`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
+  const handle_delete_room = async () => {
+    api({
+      request_type: "DELETE",
+      request_url: `http://localhost:8000/api/room/${room_id}/`
     }).then((response) => {
       if (response.status === 200) {
         router.push("/");
