@@ -1,11 +1,11 @@
-async function api({ request_type, request_url, request_body, setter }) {
+async function api({ request_type, request_url, request_body }) {
     try {
       const response = await fetch(request_url, {
         method: request_type,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(request_body),
+        body: request_body ? JSON.stringify(request_body) : null,
       });
   
       if (!response.ok) {
@@ -13,10 +13,6 @@ async function api({ request_type, request_url, request_body, setter }) {
       }
   
       const data = await response.json();
-  
-      if (typeof setter === 'function') {
-        setter({ status: response.status, data: data });
-      }
 
       return { status: response.status, data: data }
 

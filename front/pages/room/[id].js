@@ -3,6 +3,8 @@ import { useRouter } from "next/router";
 
 import Modal from "@/components/Modal";
 
+import api from "@/components/api";
+
 function Room() {
   const router = useRouter();
   const room_id = router.query.id;
@@ -45,29 +47,22 @@ function Room() {
     return () => clearInterval(interval);
   }, [deleteRoomTime]);
 
-  const handle_load_room = async (e) => {
-    await fetch(`http://localhost:8000/api/room/${room_id}/`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => {
-        if (res.status === 404) {
-          router.push("/");
-        } else {
-          return res.json();
-        }
-      })
-      .then((data) => {
-        setDeleteRoomTime(new Date(data.delete_hours));
-        if (data && data.password) {
-          setDisplayError(false);
-          setDisplayPassword(true);
-        } else {
-          get_message_list();
-        }
-      });
+  const handle_load_room = async () => {
+    api({
+      request_type: "GET",
+      request_url: `http://localhost:8000/api/room/${room_id}/`,
+    }).then((res) => {
+      if (res.status === 404) {
+        router.push("/");
+      }
+      setDeleteRoomTime(new Date(res.data.delete_hours));
+      if (res.data && res.data.password) {
+        setDisplayError(false);
+        setDisplayPassword(true);
+      } else {
+        get_message_list();
+      }
+    });
   };
 
   const verify_value = async (e) => {
